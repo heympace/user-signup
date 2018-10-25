@@ -24,37 +24,37 @@ signup_form = """
         <tbody>
             <tr>
                 <td vAlign="top">
-                    <label for="user-name">Username</label>
+                    <label for="user_name">Username</label>
                 </td>
                 <td>
-                    <input type="text" name="user-name" value='{user_name}'/>
+                    <input type="text" name="user_name" value='{user_name}'/>
                         <p class='error'>{name_error}</p>
                 </td>
             </tr>
             <tr>
                 <td vAlign="top">
-                    <label for="user-pass">Password</label>
+                    <label for="user_pass">Password</label>
                 </td>
                 <td>
-                    <input type="password" name="user-pass" value='{user_pass}'/>
+                    <input type="password" name="user_pass" value=''/>
                         <p class='error'>{pass_error}</p>
                 </td>
             </tr>     
             <tr>
                 <td vAlign="top">
-                    <label for="user-pass-verify">Verify Password</label>
+                    <label for="user_pass_verify">Verify Password</label>
                 </td>
                 <td>
-                    <input type="password" name="user-pass-verify" value='{user_pass_verify}'/>
+                    <input type="password" name="user_pass_verify" value=''/>
                         <p class='error'>{verify_error}</p>
                 </td>
             </tr> 
             <tr>
                 <td vAlign="top">
-                    <label for="user-email">Email (optional)</label>
+                    <label for="user_email">Email (optional)</label>
                 </td>
                 <td>
-                    <input type="text" name="user-email" value='{user_email}'/>
+                    <input type="text" name="user_email" value='{user_email}'/>
                         <p class='error'>{email_error}</p>
                 </td>
             </tr>     
@@ -77,6 +77,81 @@ def display_signup_form():
 # /// PROCESS /// 
 # 03 - Process form
 
+def empty_string(response):
+    if response == "":
+        return True
+
+def space_check(userfield):
+    for i in userfield:
+        if i == ' ':
+            return True
+        else:
+            return False
+
+@app.route('/signup', methods = ['POST'])
+def validate_signup():
+
+    # get data out of request:                  
+    # make sure request is imported up top
+    user_name = request.form['user_name']
+    user_pass = request.form['user_pass']
+    user_verify = request.form['user_pass_verify']
+    user_email = request.form['user_email']
+
+    # variables to hold errors
+    u_name_error = ''
+    u_pass_error = ''
+    u_verify_error = ''
+    u_email_error = ''
+
+    # TODO: 
+    # Username tests
+    if empty_string(user_name):
+        u_name_error = 'Sad day. Blank username field.'
+    elif len(user_name) < 3 or len(user_name) > 20:
+        u_name_error = 'Come on bro, 3-20 characters.'
+    elif space_check(user_name) == True:
+        u_name_error = 'No spaces allowed. Try again...'
+
+    # PW tests
+    if empty_string(user_pass):
+        u_pass_error = 'Sad day. Blank password field.'
+    elif len(user_pass) < 3 or len(user_pass) > 20:
+        u_pass_error = '3-20 characters por favor.'
+    elif space_check(user_pass) == True:
+        u_pass_error = "There's just too much space between us."        
+
+    # PW VERIFY tests
+    if empty_string(user_verify):
+        u_verify_error = 'Sad day. Please enter password from above.'
+        # compare password to verify field
+    elif user_verify != user_pass:
+        u_verify_error = "Dang. Your two passwords don't match."
+
+
+    # EMAIL tests
+    if len(user_email) != 0:
+        if len(user_email) < 3 or len(user_email) > 20:
+            u_email_error = 'Must be 3-20 characters. Or you need to rethink your whole email situation.'
+        elif user_email.count('@') != 1:
+            u_email_error = "Holler @t me. One '@' symbol is required."
+        elif user_email.count('.') < 1:
+            u_email_error = "Please double check email format"
+        elif space_check(user_email) == True:
+            u_email_error = "Let's get cozy &mdash; no spaces allowed."  
+
+    if not u_name_error and not u_pass_error and not u_verify_error and not u_email_error:
+        return "Success"
+    else: 
+        return signup_form.format(
+            name_error=u_name_error,
+            pass_error=u_pass_error, 
+            verify_error=u_verify_error, 
+            email_error=u_email_error, 
+            user_name=user_name, 
+            user_pass=user_pass, 
+            user_pass_verify=user_verify, 
+            user_email=user_email)
 
 app.run()
 
