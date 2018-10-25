@@ -76,6 +76,11 @@ def display_signup_form():
 
 # /// PROCESS /// 
 # 03 - Process form
+# Created two functions to check for empty string, spaces
+# Create /signup app.route to validate input
+# Create variables for user input
+# Create error variables w/ empty string to catch error messages
+# Use if / elif / elif to create levels of errors for each field, no return statements
 
 def empty_string(response):
     if response == "":
@@ -140,8 +145,12 @@ def validate_signup():
         elif space_check(user_email) == True:
             u_email_error = "Let's get cozy &mdash; no spaces allowed."  
 
+    # CHECK for PASS / Redirect to welcome
     if not u_name_error and not u_pass_error and not u_verify_error and not u_email_error:
-        return "Success"
+        return redirect('/welcome')
+        # this connects with app.route path below, line 167
+
+    # CHECK for ERRORS / activate errors in html
     else: 
         return signup_form.format(
             name_error=u_name_error,
@@ -152,6 +161,12 @@ def validate_signup():
             user_pass=user_pass, 
             user_pass_verify=user_verify, 
             user_email=user_email)
+
+# /// PROCESS /// 
+# 04 - SET route to WELCOME confirmation page
+@app.route('/welcome')
+def form_validated():
+    return "<h1>Welcome user!</h1>"
 
 app.run()
 
